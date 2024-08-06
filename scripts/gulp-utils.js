@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const through2 = require('through2');
 const gutil = require('gulp-util');
+const Vinyl = require('vinyl');
 const autoprefixer = require('autoprefixer');
 const gulpPostcss = require('gulp-postcss');
 const Buffer = require('buffer').Buffer;
@@ -153,7 +154,7 @@ exports.appendToFile = function(filePath) {
   }, function(done) {
     const existing = fs.readFileSync(filePath, 'utf8');
     bufferedContents = existing + '\n' + bufferedContents;
-    const outputFile = new gutil.File({
+    const outputFile = new Vinyl({
       cwd: process.cwd(),
       base: path.dirname(filePath),
       path: filePath,
@@ -177,7 +178,7 @@ exports.buildNgMaterialDefinition = function() {
     const requiredLibs = ['ng', 'ngAnimate', 'ngAria'];
     const dependencies = JSON.stringify(requiredLibs.concat(modulesSeen));
     const ngMaterialModule = "angular.module('ngMaterial', " + dependencies + ');';
-    const angularFile = new gutil.File({
+    const angularFile = new Vinyl({
       base: process.cwd(),
       path: process.cwd() + '/ngMaterial.js',
       contents: Buffer.from(ngMaterialModule)
@@ -252,7 +253,7 @@ exports.buildModuleBower = function(name, version) {
         version: version,
         dependencies: bowerDeps
       }, null, 2);
-      const bowerFile = new gutil.File({
+      const bowerFile = new Vinyl({
         base: file.base,
         path: file.base + '/bower.json',
         contents: Buffer.from(bowerContents)
@@ -334,7 +335,7 @@ exports.cssToNgConstant = function(ngModule, factoryName) {
     const template = '(function(){ \nangular.module("%1").constant("%2", "%3"); \n})();\n\n';
     const output = file.contents.toString().replace(/\n/g, '').replace(/"/g,'\\"');
 
-    const jsFile = new gutil.File({
+    const jsFile = new Vinyl({
       base: file.base,
       path: file.path.replace('css', 'js'),
       contents: Buffer.from(

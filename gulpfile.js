@@ -1,20 +1,22 @@
 const gulp = require('gulp');
 const fs = require('fs');
 
+require("./gulp/tasks/build-js");
+require("./gulp/tasks/build-scss");
+gulp.task('build', gulp.series( 'build-scss', 'build-js' ) );
+
+require("./gulp/tasks/build-module-demo");
+require("./gulp/tasks/build-demo");
+
 // include docs gulpfile (should eventually be factored out)
+// gulp 4.x requires us to wait until all build tasks have been defined
 require('./docs/gulpfile');
 
-// read in all files from gulp/tasks and create tasks for them
-fs.readdirSync('./gulp/tasks')
-    .filter(function (filename) {
-      return filename.match(/\.js$/i);
-    })
-    .map(function (filename) {
-      return {
-        name: filename.substr(0, filename.length - 3),
-        contents: require('./gulp/tasks/' + filename)
-      };
-    })
-    .forEach(function (file) {
-      gulp.task(file.name, file.contents.dependencies, file.contents.task);
-    });
+require("./gulp/tasks/docs");
+
+require("./gulp/tasks/site");
+require("./gulp/tasks/watch");
+
+require("./gulp/tasks/watch-demo");
+
+

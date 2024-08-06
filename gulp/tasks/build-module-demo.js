@@ -14,7 +14,7 @@ const _ = require('lodash');
 const util = require('../util');
 const utils = require('../../scripts/gulp-utils.js');
 
-exports.task = function() {
+function task_build_module_demo () {
   const mod = util.readModuleArg();
   const name = mod.split('.').pop();
   const demoIndexTemplate = fs.readFileSync(
@@ -38,3 +38,5 @@ exports.task = function() {
     next();
   }));
 };
+
+gulp.task( 'build-module-demo', task_build_module_demo );

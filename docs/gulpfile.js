@@ -17,42 +17,6 @@ const argv = require('minimist')(process.argv.slice(2));
 const gutil = require('gulp-util');
 const series = require('stream-series');
 
-gulp.task('demos', function() {
-  const demos = [];
-  return generateDemos()
-    .pipe(through2.obj(function(demo, enc, next) {
-      // Don't include file contents into the docs app,
-      // it saves space
-      demo.css.concat(demo.js).concat(demo.html).concat(demo.index)
-        .forEach(function(file) {
-          delete file.contents;
-        });
-      demos.push(demo);
-      next();
-    }, function(done) {
-      const demoIndex = _(demos)
-        .groupBy('moduleName')
-        .map(function(moduleDemos, moduleName) {
-          const componentName = moduleName.split('.').pop();
-          return {
-            name: componentName,
-            moduleName: moduleName,
-            label: utils.humanizeCamelCase(componentName),
-            demos: moduleDemos,
-            url: 'demo/' + componentName
-          };
-        })
-        .value();
-
-      const dest = path.resolve(__dirname, '../dist/docs/js');
-      const file = "angular.module('docsApp').constant('DEMOS', " +
-        JSON.stringify(demoIndex, null, 2) + ");";
-      mkdirp.sync(dest);
-      fs.writeFileSync(dest + '/demo-data.js', file);
-
-      done();
-    }));
-});
 
 function generateDemos() {
   return gulp.src('src/{components,services}/*/')
@@ -89,30 +53,74 @@ function generateDemos() {
     }));
 }
 
-gulp.task('docs-generate', ['build'], function() {
+function task_demos() {
+  const demos = [];
+  return generateDemos()
+    .pipe(through2.obj(function(demo, enc, next) {
+      // Don't include file contents into the docs app,
+      // it saves space
+      demo.css.concat(demo.js).concat(demo.html).concat(demo.index)
+        .forEach(function(file) {
+          delete file.contents;
+        });
+      demos.push(demo);
+      next();
+    }, function(done) {
+      const demoIndex = _(demos)
+        .groupBy('moduleName')
+        .map(function(moduleDemos, moduleName) {
+          const componentName = moduleName.split('.').pop();
+          return {
+            name: componentName,
+            moduleName: moduleName,
+            label: utils.humanizeCamelCase(componentName),
+            demos: moduleDemos,
+            url: 'demo/' + componentName
+          };
+        })
+        .value();
+
+      const dest = path.resolve(__dirname, '../dist/docs/js');
+      const file = "angular.module('docsApp').constant('DEMOS', " +
+        JSON.stringify(demoIndex, null, 2) + ");";
+      mkdirp.sync(dest);
+      fs.writeFileSync(dest + '/demo-data.js', file);
+
+      done();
+    }));
+}
+gulp.task('demos', task_demos );
+
+
+
+function task_docs_generate() {
   const dgeni = new Dgeni([
     require('./config')
   ]);
   return dgeni.generate();
-});
+}
 
-gulp.task('docs-app', ['docs-generate'], function() {
+
+function task_docs_app() {
   return gulp.src(['docs/app/**/*', '!docs/app/partials/**/*.html'])
     .pipe(gulp.dest('dist/docs'));
-});
+}
 
-gulp.task('docs-demo-scripts', ['demos'], function() {
+
+function task_docs_demo_scripts () {
   return gulp.src('dist/docs/demo-partials/**/*.js')
     .pipe(concat('docs-demo-scripts.js'))
     .pipe(gulp.dest('dist/docs'));
-});
+}
 
-gulp.task('docs-js-dependencies', ['build'], function() {
-  return gulp.src(['dist/angular-material.js', 'dist/angular-material.min.js', 'docs/app/contributors.json'])
+
+function task_docs_js_dependencies () {
+  return gulp.src(['dist/angular-material.js', 'dist/angular-material.min.js', 'docs/app/contributors.json'], { allowEmpty: true })
     .pipe(gulp.dest('dist/docs'));
-});
+}
 
-gulp.task('docs-js', ['docs-app', 'docs-html2js', 'demos', 'build', 'docs-js-dependencies'], function() {
+
+function task_docs_js () {
   const preLoadJs = ['docs/app/js/preload.js'];
   if (process.argv.indexOf('--jquery') !== -1) {
     preLoadJs.push('node_modules/jquery/dist/jquery.js');
@@ -131,19 +139,21 @@ gulp.task('docs-js', ['docs-app', 'docs-html2js', 'demos', 'build', 'docs-js-dep
       .pipe(gulpif(!argv.dev, uglify()))
   )
   .pipe(gulp.dest('dist/docs'));
-});
+}
 
-gulp.task('docs-css-dependencies', ['build'], function() {
+
+function task_docs_css_dependencies () {
   return gulp.src([
     'dist/angular-material.css',
     'dist/angular-material.min.css'
   ])
   .pipe(gulp.dest('dist/docs'));
-});
+}
 
-gulp.task('docs-css', ['docs-app', 'build', 'docs-css-dependencies'], function() {
+
+function task_docs_css () {
   return gulp.src([
-    'dist/themes/*.css',
+    //'dist/themes/*.css',
     'docs/app/css/highlightjs-material.css',
     'docs/app/css/layout-demo.css',
     'docs/app/css/style.css'
@@ -151,9 +161,9 @@ gulp.task('docs-css', ['docs-app', 'build', 'docs-css-dependencies'], function()
   .pipe(concat('docs.css'))
   .pipe(utils.autoprefix())
   .pipe(gulp.dest('dist/docs'));
-});
+}
 
-gulp.task('docs-html2js', function() {
+function task_docs_html2js () {
   return gulp.src('docs/app/**/*.tmpl.html')
     .pipe(ngHtml2js({
       moduleName: 'docsApp',
@@ -161,9 +171,10 @@ gulp.task('docs-html2js', function() {
     }))
     .pipe(concat('docs-templates.js'))
     .pipe(gulp.dest('dist/docs/js'));
-});
+}
 
-gulp.task('docs-karma', ['docs-js'], function(done) {
+
+function task_docs_karma (done) {
   const karmaConfig = {
     singleRun: true,
     autoWatch: false,
@@ -179,4 +190,53 @@ gulp.task('docs-karma', ['docs-js'], function(done) {
     }
     done();
   });
-});
+}
+
+gulp.task('docs-html2js',          task_docs_html2js );
+gulp.task('docs-generate',         gulp.series( 'build', task_docs_generate ) );
+gulp.task('docs-js-dependencies',  gulp.series( 'build', task_docs_js_dependencies ) );
+gulp.task('docs-css-dependencies', gulp.series( 'build', task_docs_css_dependencies ) );
+gulp.task('docs-app',              gulp.series( 'docs-generate', task_docs_app ) );
+gulp.task('docs-demo-scripts',     gulp.series( 'demos', task_docs_demo_scripts ) );
+
+gulp.task('docs-js-no-build',      gulp.series(
+      'docs-html2js',
+      task_docs_generate,
+      task_docs_app,
+      'demos',
+      task_docs_js_dependencies,
+      task_docs_js
+    ));
+
+gulp.task('docs-css-no-build', gulp.series(
+    task_docs_generate,
+    task_docs_app,
+    task_docs_css_dependencies,
+    task_docs_css
+  ));
+
+
+gulp.task('docs-js',               gulp.series( 'build', 'docs-js-no-build' ) );
+gulp.task('docs-css', gulp.series( 'build', 'docs-css-no-build' ));
+
+gulp.task('docs-all-no-build', gulp.series(
+    'docs-html2js',
+    task_docs_generate,
+    task_docs_app,
+    gulp.parallel(
+        gulp.series(
+            'demos',
+            task_docs_js_dependencies,
+            task_docs_js
+        ),
+        gulp.series(
+            task_docs_css_dependencies,
+            task_docs_css
+        )
+    ),
+    task_docs_demo_scripts
+  ));
+
+
+gulp.task('docs-karma', gulp.series( 'docs-js', task_docs_karma ) );
+

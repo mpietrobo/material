@@ -1,7 +1,8 @@
+const gulp = require('gulp');
 const util = require('../util');
 
-exports.dependencies = ['build', 'build-module-demo'];
-
-exports.task = function() {
-  return util.buildModule(util.readModuleArg());
+function task_build_demo () {
+    return util.buildModule(util.readModuleArg());
 };
+
+gulp.task ( 'build-demo', gulp.series( 'build', 'build-module-demo', task_build_demo ) );

@@ -15,14 +15,14 @@ const args = util.args;
 const IS_DEV = require('../const').IS_DEV;
 const path = require('path');
 
-exports.task = function() {
+function task_build_scss () {
   const streams = [];
   const modules = args.modules,
     overrides = args.override,
     dest = args['output-dir'] || config.outputDir,
     layoutDest = dest + 'layouts/';
 
-  gutil.log("Building css files...");
+  console.log("Building css files...");
 
   // create SCSS file for distribution
   streams.push(
@@ -97,7 +97,7 @@ exports.task = function() {
     .pipe(gulp.dest(layoutDest))
   );
 
-  return series(streams);
+  return Promise.all( streams );
 
   /**
    * @returns {string[]} array of SCSS file paths used in the build
@@ -116,3 +116,6 @@ exports.task = function() {
     return paths;
   }
 };
+
+gulp.task('build-scss', task_build_scss );
+

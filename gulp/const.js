@@ -6,7 +6,7 @@ const version = require('../package.json').version;
 
 exports.ROOT       = path.normalize(path.join(__dirname, '/..'));
 exports.VERSION    = args.version || version;
-exports.LR_PORT    = args.port || args.p || 8080;
+exports.LR_PORT    = args.port || args.p || 7880;
 exports.IS_DEV     = args.dev;
 exports.SHA        = args.sha;
 exports.BUILD_MODE = getBuildMode();

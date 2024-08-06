@@ -1,5 +1,8 @@
+const gulp = require('gulp');
 const util = require('../util');
 
-exports.task = function() {
-  return util.buildJs();
-};
+gulp.task('build-js', function( done ) {
+    util.buildJs();
+    done();
+});
+

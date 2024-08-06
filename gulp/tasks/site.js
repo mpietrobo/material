@@ -1,7 +1,9 @@
 const connect = require('gulp-connect');
 const LR_PORT = require('../const').LR_PORT;
 
-exports.task = function () {
+const gulp = require('gulp');
+
+function task_site () {
   connect.server({
     root: './dist/docs',
     livereload: true,
@@ -13,3 +15,5 @@ exports.task = function () {
     fallback: './dist/docs/index.html'
   });
 };
+
+gulp.task( 'site', task_site );

@@ -48,7 +48,7 @@ function buildJs() {
     jsFiles.push(path.join(component, '**/*.js'));
   });
 
-  gutil.log("building js files...");
+  console.log("building js files...");
 
   const jsBuildStream = gulp.src(jsFiles)
   .pipe(filterNonCodeFiles())
@@ -100,7 +100,7 @@ function buildModule(module, opts) {
   if (module.indexOf(".") < 0) {
     module = "material.components." + module;
   }
-  gutil.log('Building ' + module + (opts.isRelease && ' minified' || '') + ' ...');
+  console.log('Building ' + module + (opts.isRelease && ' minified' || '') + ' ...');
 
   const name = module.split('.').pop();
   utils.copyDemoAssets(name, 'src/components/', 'dist/demos/');
@@ -233,9 +233,9 @@ function buildModule(module, opts) {
 function readModuleArg() {
   const module = args.c ? 'material.components.' + args.c : (args.module || args.m);
   if (!module) {
-    gutil.log('\nProvide a component argument via `-c`:',
+    console.log('\nProvide a component argument via `-c`:',
       '\nExample: -c toast');
-    gutil.log('\nOr provide a module argument via `--module` or `-m`.',
+    console.log('\nOr provide a module argument via `--module` or `-m`.',
       '\nExample: --module=material.components.toast or -m material.components.dialog');
     throw new Error("Unable to read module arguments.");
   }
@@ -299,7 +299,7 @@ function dedupeCss() {
         if (hasDuplicate) {
           prop.remove();
 
-          gutil.log(gutil.colors.yellow(
+          console.log(gutil.colors.yellow(
             'Removed duplicate property: "' +
             prop.prop + ': ' + prop.value + '" from "' + rule.selector + '"...'
           ));
