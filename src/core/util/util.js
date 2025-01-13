@@ -1356,7 +1356,27 @@ function UtilFactory($document, $timeout, $compile, $rootScope, $$mdAnimate, $in
       }
 
       return null;
+    },
+
+    /**
+     * Walks up the DOM starting from the passed element to determine the z-index value of the element
+     * @param {HTMLElement} elem
+     * @returns {Integer|null}
+     */
+    getZIndex: function getZIndex ( elem ) {
+        var zIndex = null;
+        var e = angular.element( elem ).parent();
+        while( e.length && e[0].nodeName.toUpperCase() != 'BODY' ) {
+            var style = $window.getComputedStyle( e[0] );
+            var z = style.getPropertyValue( "z-index" );
+            if ( z != null && z != "auto" ) {
+                zIndex = ( zIndex || 0 ) + parseInt( z, 10 );
+            }
+            e = e.parent();
+        }
+        return zIndex;
     }
+
   };
 
   // Instantiate other namespace utility methods

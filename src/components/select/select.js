@@ -1580,6 +1580,11 @@ function SelectProvider($$interimElementProvider) {
       watchAsyncLoad();
       sanitizeAndConfigure(scope, opts);
 
+      var zIndex = $mdUtil.getZIndex( opts.target );
+      if ( zIndex != null ) {
+        element.css( 'zIndex', zIndex+2 );
+      }
+
       opts.hideBackdrop = showBackdrop(scope, element, opts);
 
       return showDropDown(scope, element, opts)
@@ -1661,6 +1666,9 @@ function SelectProvider($$interimElementProvider) {
         if (options.hasBackdrop) {
           // Override duration to immediately show invisible backdrop
           options.backdrop = $mdUtil.createBackdrop(scope, "md-select-backdrop md-click-catcher");
+          if ( options.backdrop != null && zIndex != null ) {
+            options.backdrop.css( 'zIndex', zIndex+1 );
+          }
           $animate.enter(options.backdrop, $document[0].body, null, {duration: 0});
         }
 
