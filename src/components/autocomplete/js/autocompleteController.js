@@ -184,6 +184,10 @@ function MdAutocompleteCtrl ($scope, $element, $mdUtil, $mdConstant, $mdTheming,
       minWidth: width + 'px',
       maxWidth: Math.max(hrect.right - root.left, root.right - hrect.left) - MENU_PADDING + 'px'
     };
+    var zIndex = $mdUtil.getZIndex( elements.main );
+    if ( zIndex != null ) {
+        styles.zIndex = zIndex;
+    }
 
     if (position === 'top') {
       styles.top       = 'auto';
