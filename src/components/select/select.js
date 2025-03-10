@@ -1582,7 +1582,7 @@ function SelectProvider($$interimElementProvider) {
 
       var zIndex = $mdUtil.getZIndex( opts.target );
       if ( zIndex != null ) {
-        element.css( 'zIndex', zIndex+2 );
+        element.css( 'zIndex', zIndex+51 ); // when present, md-scroll-mask has a z-index of 50, so we need to be sure this ends up over it
       }
 
       opts.hideBackdrop = showBackdrop(scope, element, opts);
