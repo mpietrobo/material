@@ -186,7 +186,8 @@ function MdAutocompleteCtrl ($scope, $element, $mdUtil, $mdConstant, $mdTheming,
     };
     var zIndex = $mdUtil.getZIndex( elements.main );
     if ( zIndex != null ) {
-        styles.zIndex = zIndex;
+        // when present, md-scroll-mask has a z-index of 50, so we need to be sure this ends up over it
+        styles.zIndex = zIndex+51;
     }
 
     if (position === 'top') {
