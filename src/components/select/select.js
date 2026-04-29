@@ -253,10 +253,10 @@ function SelectDirective($mdSelect, $mdUtil, $mdConstant, $mdTheming, $mdAria, $
     var ngModelOptions = tAttrs.ngModelOptions ? $mdUtil.supplant('ng-model-options="{0}"', [tAttrs.ngModelOptions]) : '';
     var selectTemplate = '' +
       '<div class="md-select-menu-container" aria-hidden="true" role="presentation">' +
-      '  <md-select-menu role="presentation" {0} {1}>{2}</md-select-menu>' +
+      '  <md-select-menu role="presentation" {0} {1} {3}>{2}</md-select-menu>' +
       '</div>';
-
-    selectTemplate = $mdUtil.supplant(selectTemplate, [multipleContent, ngModelOptions,  tElement.html()]);
+    var menuClass = tAttrs.menuClass ? 'menu-class='+tAttrs.menuClass : "";
+    selectTemplate = $mdUtil.supplant(selectTemplate, [multipleContent, ngModelOptions,  tElement.html(), menuClass ]);
     tElement.empty().append(valueEl);
     tElement.append(selectTemplate);
 
@@ -687,6 +687,9 @@ function SelectMenuDirective($parse, $mdUtil, $mdConstant, $mdTheming) {
     var selectMenuCtrl = ctrls[0];
 
     element.addClass('_md');     // private md component indicator for styling
+    if ( attrs.menuClass ) {
+        element.addClass( attrs.menuClass );
+    }
 
     $mdTheming(element);
     element.on('click', clickListener);
